@@ -97,6 +97,22 @@ define Device/asus_tuf-ax4200
 endef
 TARGET_DEVICES += asus_tuf-ax4200
 
+define Device/asus_tuf-ax6000
+  DEVICE_VENDOR := ASUS
+  DEVICE_MODEL := TUF-AX6000
+  DEVICE_DTS := mt7986a-asus-tuf-ax6000
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_DTS_LOADADDR := 0x47000000
+  DEVICE_PACKAGES := kmod-usb3 kmod-mt7986-firmware mt7986-wo-firmware
+  IMAGES := sysupgrade.bin
+  KERNEL := kernel-bin | lzma | \
+	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
+  KERNEL_INITRAMFS := kernel-bin | lzma | \
+	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += asus_tuf-ax6000
+
 define Device/bananapi_bpi-r3
   DEVICE_VENDOR := Bananapi
   DEVICE_MODEL := BPi-R3
@@ -146,6 +162,36 @@ define Device/bananapi_bpi-r3
   DEVICE_COMPAT_MESSAGE := Device tree overlay mechanism needs bootloader update
 endef
 TARGET_DEVICES += bananapi_bpi-r3
+
+define Device/bananapi_bpi-r3-common
+  DEVICE_VENDOR := Bananapi
+  DEVICE_MODEL := BPI-R3 Mini
+  DEVICE_DTS_DIR := $(DTS_DIR)/
+  DEVICE_PACKAGES := e2fsprogs f2fsck mkf2fs \
+	kmod-hwmon-pwmfan kmod-mt7915e kmod-mt7986-firmware \
+	kmod-phy-airoha-en8811h kmod-usb3 mt7986-wo-firmware
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+
+define Device/bananapi_bpi-r3-mini-emmc
+  $(call Device/bananapi_bpi-r3-common)
+  DEVICE_MODEL := BPI-R3 Mini (eMMC)
+  DEVICE_DTS := mt7986a-bananapi-bpi-r3mini-emmc
+  SUPPORTED_DEVICES += bananapi,bpi-r3-mini
+endef
+TARGET_DEVICES += bananapi_bpi-r3-mini-emmc
+
+define Device/bananapi_bpi-r3-mini-nand
+  $(call Device/bananapi_bpi-r3-common)
+  DEVICE_MODEL := BPI-R3 Mini (NAND)
+  DEVICE_DTS := mt7986a-bananapi-bpi-r3mini-nand
+  SUPPORTED_DEVICES += bananapi,bpi-r3-mini
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_IN_UBI := 1
+endef
+TARGET_DEVICES += bananapi_bpi-r3-mini-nand
 
 define Device/bananapi_bpi-r4-common
   DEVICE_VENDOR := Bananapi
@@ -236,6 +282,35 @@ define Device/cetron_ct3003-mod
 endef
 TARGET_DEVICES += cetron_ct3003-mod
 
+define Device/cmcc_a10
+  DEVICE_VENDOR := CMCC
+  DEVICE_MODEL := A10
+  DEVICE_DTS := mt7981b-cmcc-a10
+  DEVICE_DTS_DIR := ../dts
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_IN_UBI := 1
+  SUPPORTED_DEVICES += mediatek,mt7981-spim-snand-rfb
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware
+endef
+TARGET_DEVICES += cmcc_a10
+
+define Device/cmcc_a10-mod
+  DEVICE_VENDOR := CMCC
+  DEVICE_MODEL := A10 (U-Boot mod)
+  DEVICE_DTS := mt7981b-cmcc-a10-mod
+  DEVICE_DTS_DIR := ../dts
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_IN_UBI := 1
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware
+endef
+TARGET_DEVICES += cmcc_a10-mod
+
 define Device/cmcc_rax3000m-emmc
   DEVICE_VENDOR := CMCC
   DEVICE_MODEL := RAX3000M (eMMC version)
@@ -269,6 +344,56 @@ define Device/cmcc_rax3000m-nand
 	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd
 endef
 TARGET_DEVICES += cmcc_rax3000m-nand
+
+define Device/cmcc_xr30-nand
+  DEVICE_VENDOR := CMCC
+  DEVICE_MODEL := XR30 NAND
+  DEVICE_VARIANT := (U-Boot mod)
+  DEVICE_DTS := mt7981b-cmcc-xr30-nand
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware kmod-usb3
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  IMAGE_SIZE := 116736k
+  KERNEL_IN_UBI := 1
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += cmcc_xr30-nand
+
+define Device/cudy_tr3000-mod
+  DEVICE_VENDOR := Cudy
+  DEVICE_MODEL := TR3000
+  DEVICE_VARIANT := (U-Boot mod)
+  DEVICE_DTS := mt7981b-cudy-tr3000-mod
+  DEVICE_DTS_DIR := ../dts
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_IN_UBI := 1
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  DEVICE_PACKAGES := kmod-usb3 kmod-mt7981-firmware mt7981-wo-firmware
+endef
+TARGET_DEVICES += cudy_tr3000-mod
+
+define Device/cudy_tr3000-v1
+  DEVICE_VENDOR := Cudy
+  DEVICE_MODEL := TR3000
+  DEVICE_VARIANT := v1
+  DEVICE_DTS := mt7981b-cudy-tr3000-v1
+  DEVICE_DTS_DIR := ../dts
+  SUPPORTED_DEVICES += R47
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  IMAGE_SIZE := 65536k
+  KERNEL_IN_UBI := 1
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  DEVICE_PACKAGES := kmod-usb3 kmod-mt7981-firmware mt7981-wo-firmware
+endef
+TARGET_DEVICES += cudy_tr3000-v1
 
 define Device/fzs_5gcpe-p3
   DEVICE_VENDOR := FZS
@@ -364,17 +489,31 @@ define Device/h3c_magic-nx30-pro
 endef
 TARGET_DEVICES += h3c_magic-nx30-pro
 
+define Device/huasifei_wh3000-emmc
+  DEVICE_VENDOR := Huasifei
+  DEVICE_MODEL := WH3000 eMMC
+  DEVICE_DTS := mt7981b-huasifei-wh3000-emmc
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware kmod-usb3 f2fsck mkf2fs
+  KERNEL := kernel-bin | lzma | fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
+  KERNEL_INITRAMFS := kernel-bin | lzma | \
+	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  SUPPORTED_DEVICES += huasifei,wh3000
+endef
+TARGET_DEVICES += huasifei_wh3000-emmc
+
 define Device/hf_m7986r1-emmc
   DEVICE_VENDOR := HF
   DEVICE_MODEL := M7986R1 (eMMC)
   DEVICE_DTS := mt7986a-hf-m7986r1-emmc
   DEVICE_DTS_DIR := ../dts
   DEVICE_PACKAGES := kmod-usb3 kmod-mt7921e kmod-usb-net-rndis kmod-usb-serial-option f2fsck mkf2fs
-  SUPPORTED_DEVICES += HF-M7986R1
   KERNEL := kernel-bin | lzma | fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
   KERNEL_INITRAMFS := kernel-bin | lzma | \
 	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  SUPPORTED_DEVICES += HF-M7986R1
 endef
 TARGET_DEVICES += hf_m7986r1-emmc
 
@@ -388,8 +527,8 @@ define Device/hf_m7986r1-nand
   PAGESIZE := 2048
   KERNEL_IN_UBI := 1
   DEVICE_PACKAGES := kmod-usb3 kmod-mt7921e kmod-usb-net-rndis kmod-usb-serial-option
-  SUPPORTED_DEVICES += HF-M7986R1
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  SUPPORTED_DEVICES += HF-M7986R1
 endef
 TARGET_DEVICES += hf_m7986r1-nand
 
@@ -430,6 +569,24 @@ define Device/jdcloud_re-cs-05
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += jdcloud_re-cs-05
+
+define Device/konka_komi-a31
+  DEVICE_VENDOR := KONKA
+  DEVICE_MODEL := KOMI A31
+  DEVICE_ALT0_VENDOR := E-life
+  DEVICE_ALT0_MODEL := ETR631-T
+  DEVICE_ALT1_VENDOR := E-life
+  DEVICE_ALT1_MODEL := ETR635-U
+  DEVICE_DTS := mt7981b-konka-komi-a31
+  DEVICE_DTS_DIR := ../dts
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_IN_UBI := 1
+  DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += konka_komi-a31
 
 define Device/mediatek_mt7986a-rfb
   DEVICE_VENDOR := MediaTek
@@ -546,6 +703,20 @@ define Device/netcore_n60
 endef
 TARGET_DEVICES += netcore_n60
 
+define Device/netcore_n60-pro
+  DEVICE_VENDOR := Netcore
+  DEVICE_MODEL := N60 PRO
+  DEVICE_DTS := mt7986a-netcore-n60-pro
+  DEVICE_DTS_DIR := ../dts
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_IN_UBI := 1
+  DEVICE_PACKAGES := kmod-usb3 kmod-mt7986-firmware mt7986-wo-firmware
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += netcore_n60-pro
+
 define Device/nokia_ea0326gmp
   DEVICE_VENDOR := Nokia
   DEVICE_MODEL := EA0326GMP
@@ -603,6 +774,20 @@ define Device/ruijie_rg-x60-pro
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += ruijie_rg-x60-pro
+
+define Device/tenbay_wr3000k
+  DEVICE_VENDOR := Tenbay
+  DEVICE_MODEL := WR3000K
+  DEVICE_DTS := mt7981b-tenbay-wr3000k
+  DEVICE_DTS_DIR := ../dts
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_IN_UBI := 1
+  DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += tenbay_wr3000k
 
 define Device/tplink_tl-common
   DEVICE_VENDOR := TP-Link

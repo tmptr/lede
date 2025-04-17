@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_VERSION:=2024.10
+PKG_VERSION:=2025.04
 PKG_RELEASE:=1
 
-PKG_HASH:=b28daf4ac17e43156363078bf510297584137f6df50fced9b12df34f61a92fb0
+PKG_HASH:=439d3bef296effd54130be6a731c5b118be7fddd7fcc663ccbc5fb18294d8718
 
 PKG_MAINTAINER:=Tobias Maedel <openwrt@tbspace.de>
 
@@ -38,12 +38,26 @@ define U-Boot/nanopi-r2c-rk3328
     friendlyarm_nanopi-r2c
 endef
 
+define U-Boot/nanopi-r2c-plus-rk3328
+  $(U-Boot/rk3328/Default)
+  NAME:=NanoPi R2C Plus
+  BUILD_DEVICES:= \
+    friendlyarm_nanopi-r2c-plus
+endef
+
 define U-Boot/nanopi-r2s-rk3328
   $(U-Boot/rk3328/Default)
   NAME:=NanoPi R2S
   BUILD_DEVICES:= \
     friendlyarm_nanopi-r2s \
     friendlyarm_nanopi-neo3
+endef
+
+define U-Boot/nanopi-r2s-plus-rk3328
+  $(U-Boot/rk3328/Default)
+  NAME:=NanoPi R2S Plus
+  BUILD_DEVICES:= \
+    friendlyarm_nanopi-r2s-plus
 endef
 
 define U-Boot/orangepi-r1-plus-rk3328
@@ -169,13 +183,42 @@ define U-Boot/sv901-eaio-rk3399
   USE_RKBIN:=1
 endef
 
+# RK3528 boards
+
+define U-Boot/rk3528/Default
+  BUILD_SUBTARGET:=armv8
+  DEPENDS:=+PACKAGE_u-boot-$(1):rkbin-rk3528
+  ATF:=rk3528_bl31_v1.17.elf
+  TPL:=rk3528_ddr_1056MHz_v1.10.bin
+endef
+
+define U-Boot/generic-rk3528
+  $(U-Boot/rk3528/Default)
+  NAME:=GENERIC RK3528
+  BUILD_DEVICES:= \
+    armsom_sige1 \
+    hinlink_opc-h28k \
+    hinlink_opc-h29k \
+    hinlink_opc-ht2 \
+    widora_mangopi-m28c \
+    widora_mangopi-m28k \
+    widora_mangopi-m28k-pro
+endef
+
+define U-Boot/radxa-e20c-rk3528
+  $(U-Boot/rk3528/Default)
+  NAME:=Radxa E20C
+  BUILD_DEVICES:= \
+    radxa_e20c
+endef
+
 # RK3566 boards
 
 define U-Boot/rk3566/Default
   BUILD_SUBTARGET:=armv8
   DEPENDS:=+PACKAGE_u-boot-$(1):rkbin-rk3566
   ATF:=rk3568_bl31_v1.44.elf
-  TPL:=rk3566_ddr_1056MHz_v1.21.bin
+  TPL:=rk3566_ddr_1056MHz_v1.23.bin
 endef
 
 define U-Boot/nanopi-r3s-rk3566
@@ -205,7 +248,7 @@ define U-Boot/rk3568/Default
   BUILD_SUBTARGET:=armv8
   DEPENDS:=+PACKAGE_u-boot-$(1):rkbin-rk3568
   ATF:=rk3568_bl31_v1.44.elf
-  TPL:=rk3568_ddr_1560MHz_v1.21.bin
+  TPL:=rk3568_ddr_1560MHz_v1.23.bin
 endef
 
 define U-Boot/bpi-r2-pro-rk3568
@@ -242,6 +285,13 @@ define U-Boot/generic-rk3568
     hinlink_opc-h69k \
     lyt_t68m \
     seewo_sv21
+endef
+
+define U-Boot/mmbox-anas3035-rk3568
+  $(U-Boot/rk3568/Default)
+  NAME:=MMBOX ANAS3035
+  BUILD_DEVICES:= \
+    mmbox_anas3035
 endef
 
 define U-Boot/nanopi-r5c-rk3568
@@ -297,9 +347,9 @@ endef
 
 define U-Boot/rk3588/Default
   BUILD_SUBTARGET:=armv8
-  DEPENDS:=+PACKAGE_u-boot-$(1):rkbin-rk3588
-  ATF:=rk3588_bl31_v1.45.elf
-  TPL:=rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.16.bin
+  DEPENDS:=+PACKAGE_u-boot-$(1):trusted-firmware-a-rk3588
+  ATF:=rk3588_bl31.elf
+  TPL:=rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.18.bin
 endef
 
 define U-Boot/generic-rk3588
@@ -323,6 +373,13 @@ define U-Boot/orangepi-5-plus-rk3588
   NAME:=OrangePi 5 Plus
   BUILD_DEVICES:= \
     xunlong_orangepi-5-plus
+endef
+
+define U-Boot/rock5b-rk3588
+  $(U-Boot/rk3588/Default)
+  NAME:=ROCK 5B
+  BUILD_DEVICES:= \
+    radxa_rock-5b
 endef
 
 define U-Boot/sige7-rk3588
@@ -355,7 +412,16 @@ define U-Boot/orangepi-5-rk3588s
     xunlong_orangepi-5
 endef
 
+define U-Boot/rock5a-rk3588s
+  $(U-Boot/rk3588/Default)
+  NAME:=ROCK 5A
+  BUILD_DEVICES:= \
+    radxa_rock-5a
+endef
+
 UBOOT_TARGETS := \
+  generic-rk3528 \
+  radxa-e20c-rk3528 \
   nanopi-r3s-rk3566 \
   panther-x2-rk3566 \
   rock-3c-rk3566 \
@@ -363,6 +429,7 @@ UBOOT_TARGETS := \
   generic-rk3568 \
   fastrhino-r66s-rk3568 \
   fastrhino-r68s-rk3568 \
+  mmbox-anas3035-rk3568 \
   nanopi-r5c-rk3568 \
   nanopi-r5s-rk3568 \
   photonicat-rk3568 \
@@ -373,10 +440,12 @@ UBOOT_TARGETS := \
   generic-rk3588 \
   nanopc-t6-rk3588 \
   orangepi-5-plus-rk3588 \
+  rock5b-rk3588 \
   sige7-rk3588 \
   nanopi-r6c-rk3588s \
   nanopi-r6s-rk3588s \
   orangepi-5-rk3588s \
+  rock5a-rk3588s \
   dlfr100-rk3399 \
   h3399pc-rk3399 \
   fine3399-rk3399 \
@@ -391,7 +460,9 @@ UBOOT_TARGETS := \
   guangmiao-g4c-rk3399 \
   xiaobao-nas-v1-rk3399 \
   nanopi-r2c-rk3328 \
+  nanopi-r2c-plus-rk3328 \
   nanopi-r2s-rk3328 \
+  nanopi-r2s-plus-rk3328 \
   orangepi-r1-plus-rk3328 \
   orangepi-r1-plus-lts-rk3328
 
@@ -401,6 +472,20 @@ UBOOT_MAKE_FLAGS += \
   BL31=$(STAGING_DIR_IMAGE)/$(ATF) \
   PATH=$(STAGING_DIR_HOST)/bin:$(PATH) \
   $(if $(TPL),ROCKCHIP_TPL=$(STAGING_DIR_IMAGE)/$(TPL))
+
+RKBIN_URL:=https://raw.githubusercontent.com/rockchip-linux/rkbin/385bf9f1700cc4b7ab8af1ec96da02f4837c525a
+
+define Download/rk3588-ddr
+  FILE:=rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.18.bin
+  URL:=$(RKBIN_URL)/bin/rk35/
+  HASH:=d89d40a8183b099589bfcffc5cc2ce9d874eb5b1d19b78bdad2cfcf45b9cb68f
+endef
+$(eval $(call Download,rk3588-ddr))
+
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	$(CP) $(DL_DIR)/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.18.bin $(STAGING_DIR_IMAGE)/
+endef
 
 define Build/Configure
 	$(call Build/Configure/U-Boot)
